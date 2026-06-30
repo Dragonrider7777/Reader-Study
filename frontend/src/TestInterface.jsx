@@ -2,30 +2,35 @@
 // https://niivue.com/docs/
 // Allows embedding medical imaging into web pages using React framework
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { Niivue } from "@niivue/niivue";
 
 function TestInterface() {
-  const NiiVue = ({ imageUrl }) => {
-    const canvas = useRef();
-    const nvRef = useRef();
-    useEffect(() => {
-      const volumeList = [
-        {
-          url: imageUrl,
-        },
-      ];
-      async function setupAndLoad() {
-        const nv = new Niivue();
-        nv.attachToCanvas(canvas.current);
-        await nv.loadVolumes(volumeList);
-        nvRef.current = nv;
-      }
-      setupAndLoad();
-    }, [imageUrl]);
+  const canvasRef = useRef(null);
+  const [scans, setScans] = useState([]);
+  const [selectedScan, setSelectedScan] = useState("");
 
-    return <canvas ref={canvas} height={480} width={640} />;
-  };
+  // Fetch scan list from brain-scans repo
+  useEffect(() => {
+    fetch("https://Dragonrider7777.github.io/brain-scans/scans.json")
+      .then((res) => res.json())
+      .then((data) => {
+        setScans(data);
+        if (data.length > 0) setSelectedScan(data[0].url);
+      })
+      .catch((err) => console.error("Failed to load scan list:", err));
+  }, []);
+
+  // Load selected scan into NiiVue
+  useEffect(() => {
+    if (!selectedScan) return;
+    const nv = new Niivue();
+    nv.attachToCanvas(canvasRef.current);
+    nv.loadVolumes([
+      { url: selectedScan, name: selectedScan.split("/").pop() },
+    ]).catch((err) => console.error("Failed to load scan: ", err));
+    return () => nv.destroy?.();
+  }, [selectedScan]);
 
   return (
     <section className="content-section">
@@ -33,7 +38,19 @@ function TestInterface() {
       <p className="page-description">
         A NiFTI image viewer that can be used in browser!
       </p>
-      <NiiVue imageUrl=
+      <div>
+        <select
+          value={selectedScan}
+          onChange={(e) => setSelectedScan(e.target.value)}
+        >
+          {scans.map((scan) => (
+            <option key={scan.url} value={scan.url}>
+              {scan.name}
+            </option>
+          ))}
+        </select>
+        <canvas ref={canvasRef} width={640} height={480} />
+      </div>
     </section>
   );
 }
