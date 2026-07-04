@@ -1,0 +1,182 @@
+.reader-study-page {
+  min-height: 100vh;
+  padding: 32px;
+  background: #f4f7fb;
+  color: #172033;
+}
+
+.study-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0 0 8px;
+  color: #4f6df5;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.78rem;
+}
+
+.study-header h1 {
+  margin: 0;
+  font-size: 2.2rem;
+}
+
+.study-header p {
+  margin-top: 8px;
+  color: #65708a;
+}
+
+.study-status-card {
+  min-width: 140px;
+  padding: 18px;
+  border-radius: 18px;
+  background: white;
+  box-shadow: 0 12px 30px rgba(20, 35, 70, 0.08);
+}
+
+.study-status-card span {
+  display: block;
+  color: #65708a;
+  font-size: 0.85rem;
+}
+
+.study-status-card strong {
+  display: block;
+  margin-top: 6px;
+  font-size: 1.6rem;
+}
+
+.progress-section {
+  margin-bottom: 24px;
+}
+
+.progress-bar {
+  height: 10px;
+  border-radius: 999px;
+  background: #dce3f2;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: #4f6df5;
+  transition: width 0.25s ease;
+}
+
+.study-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+}
+
+.viewer-panel,
+.info-panel {
+  background: white;
+  border-radius: 22px;
+  box-shadow: 0 12px 30px rgba(20, 35, 70, 0.08);
+}
+
+.viewer-panel {
+  padding: 20px;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.panel-header h2,
+.info-panel h2 {
+  margin: 0;
+  color: #65708a;
+}
+
+.panel-header p {
+  margin: 6px 0 0;
+  color: #65708a;
+  font-size: 0.9rem;
+}
+
+.badge {
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #4f6df5;
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.viewer-panel canvas {
+  width: 100%;
+  max-height: 600px;
+  border-radius: 16px;
+  background: #050812;
+}
+
+.info-panel {
+  padding: 22px;
+}
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 0;
+  border-bottom: 1px solid #edf0f6;
+}
+
+.info-row span {
+  color: #65708a;
+}
+
+.evaluation-placeholder {
+  margin-top: 22px;
+  padding: 16px;
+  border-radius: 16px;
+  background: #f6f8fc;
+}
+
+.evaluation-placeholder h3 {
+  margin: 0 0 8px;
+}
+
+.evaluation-placeholder p {
+  margin: 0;
+  color: #65708a;
+  line-height: 1.5;
+}
+
+.study-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 24px;
+}
+
+.study-navigation button {
+  border: none;
+  border-radius: 14px;
+  padding: 12px 18px;
+  background: #4f6df5;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.study-navigation button:disabled {
+  background: #c8cfdd;
+  cursor: not-allowed;
+}
+
+.loading-text {
+  font-size: 1.2rem;
+  color: #65708a;
+}
