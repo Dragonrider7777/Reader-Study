@@ -180,3 +180,24 @@
   font-size: 1.2rem;
   color: #65708a;
 }
+
+.viewer-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.viewer-toolbar button {
+  border: 1px solid #dce3f2;
+  border-radius: 12px;
+  padding: 9px 13px;
+  background: #f8faff;
+  color: #172033;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.viewer-toolbar button:hover {
+  background: #eef2ff;
+}

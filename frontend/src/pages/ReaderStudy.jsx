@@ -1,10 +1,9 @@
-/* eslint-disable react-hooks/static-components */
 // Web viewer powered by NiiVue
 // https://niivue.com/docs/
 // Allows embedding medical imaging into web pages using React framework
 
 import { useRef, useEffect, useState } from "react";
-import { Niivue } from "@niivue/niivue";
+import { Niivue, SLICE_TYPE } from "@niivue/niivue";
 import "../styles/reader-study.css";
 
 function ReaderStudy() {
@@ -28,10 +27,13 @@ function ReaderStudy() {
   }, []);
 
   useEffect(() => {
-    if (!currentImage) return;
+    if (!currentImage || !canvasRef.current) return;
 
     async function loadImage() {
-      const nv = new Niivue();
+      const nv = new Niivue({
+        backColor: [0, 0, 0, 1],
+        show3Dcrosshair: true,
+      });
 
       nv.attachToCanvas(canvasRef.current);
 
@@ -41,11 +43,28 @@ function ReaderStudy() {
         },
       ]);
 
+      nv.setSliceType(SLICE_TYPE.MULTIPLANAR);
+
       nvRef.current = nv;
     }
 
     loadImage();
   }, [currentImage]);
+
+  function setView(sliceType) {
+    if (!nvRef.current) return;
+    nvRef.current.setSliceType(sliceType);
+  }
+
+  function resetViewer() {
+    if (!nvRef.current || !currentImage) return;
+
+    nvRef.current.loadVolumes([
+      {
+        url: currentImage.url,
+      },
+    ]);
+  }
 
   function nextImage() {
     if (currentIndex < images.length - 1) {
@@ -101,12 +120,22 @@ function ReaderStudy() {
           <div className="panel-header">
             <div>
               <h2>Image Viewer</h2>
-              <p>{currentImage.filename}</p>
+              <p>{currentImage?.filename || "Loading..."}</p>
             </div>
-
-            <span className="badge">NIfTI</span>
           </div>
 
+          <div className="viewer-toolbar">
+            <button onClick={() => setView(SLICE_TYPE.AXIAL)}>Axial</button>
+            <button onClick={() => setView(SLICE_TYPE.CORONAL)}>Coronal</button>
+            <button onClick={() => setView(SLICE_TYPE.SAGITTAL)}>
+              Sagittal
+            </button>
+            <button onClick={() => setView(SLICE_TYPE.MULTIPLANAR)}>
+              Multiplanar
+            </button>
+            <button onClick={() => setView(SLICE_TYPE.RENDER)}>3D</button>
+            <button onClick={resetViewer}>Reset</button>
+          </div>
           <canvas ref={canvasRef} height={520} width={720} />
         </div>
 
@@ -135,7 +164,7 @@ function ReaderStudy() {
 
           <div className="evaluation-placeholder">
             <h3>Evaluation</h3>
-            <p>Ratings, confidence scores, and comments will go here.</p>
+            <p>Evaluation will go here.</p>
           </div>
         </aside>
       </section>
