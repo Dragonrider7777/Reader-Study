@@ -2,8 +2,9 @@
 // https://niivue.com/docs/
 // Allows embedding medical imaging into web pages using React framework
 
-import { useRef, useEffect, useState } from "react";
-import { Niivue, SLICE_TYPE } from "@niivue/niivue";
+import { useEffect, useState } from "react";
+import ImageViewer from "../components/ImageViewer";
+import RatingScale from "../components/RatingScale";
 import "../styles/reader-study.css";
 
 function ReaderStudy() {
@@ -11,9 +12,6 @@ function ReaderStudy() {
   const [images, setImages] = useState([]);
   // Index of the image brain scan being currently displayed
   const [currentIndex, setCurrentIndex] = useState(0);
-
-  const canvasRef = useRef(null);
-  const nvRef = useRef(null);
 
   const currentImage = images[currentIndex];
 
@@ -25,46 +23,6 @@ function ReaderStudy() {
     }
     fetchImages();
   }, []);
-
-  useEffect(() => {
-    if (!currentImage || !canvasRef.current) return;
-
-    async function loadImage() {
-      const nv = new Niivue({
-        backColor: [0, 0, 0, 1],
-        show3Dcrosshair: true,
-      });
-
-      nv.attachToCanvas(canvasRef.current);
-
-      await nv.loadVolumes([
-        {
-          url: currentImage.url,
-        },
-      ]);
-
-      nv.setSliceType(SLICE_TYPE.MULTIPLANAR);
-
-      nvRef.current = nv;
-    }
-
-    loadImage();
-  }, [currentImage]);
-
-  function setView(sliceType) {
-    if (!nvRef.current) return;
-    nvRef.current.setSliceType(sliceType);
-  }
-
-  function resetViewer() {
-    if (!nvRef.current || !currentImage) return;
-
-    nvRef.current.loadVolumes([
-      {
-        url: currentImage.url,
-      },
-    ]);
-  }
 
   function nextImage() {
     if (currentIndex < images.length - 1) {
@@ -116,28 +74,7 @@ function ReaderStudy() {
       </section>
 
       <section className="study-layout">
-        <div className="viewer-panel">
-          <div className="panel-header">
-            <div>
-              <h2>Image Viewer</h2>
-              <p>{currentImage?.filename || "Loading..."}</p>
-            </div>
-          </div>
-
-          <div className="viewer-toolbar">
-            <button onClick={() => setView(SLICE_TYPE.AXIAL)}>Axial</button>
-            <button onClick={() => setView(SLICE_TYPE.CORONAL)}>Coronal</button>
-            <button onClick={() => setView(SLICE_TYPE.SAGITTAL)}>
-              Sagittal
-            </button>
-            <button onClick={() => setView(SLICE_TYPE.MULTIPLANAR)}>
-              Multiplanar
-            </button>
-            <button onClick={() => setView(SLICE_TYPE.RENDER)}>3D</button>
-            <button onClick={resetViewer}>Reset</button>
-          </div>
-          <canvas ref={canvasRef} height={520} width={720} />
-        </div>
+        <ImageViewer src={currentImage.url} />
 
         <aside className="info-panel">
           <h2>Study Information</h2>
@@ -162,9 +99,23 @@ function ReaderStudy() {
             <strong>In Progress</strong>
           </div>
 
-          <div className="evaluation-placeholder">
-            <h3>Evaluation</h3>
-            <p>Evaluation will go here.</p>
+          <div className="evaluation-card">
+            <div className="evaluation-heading">
+              <p className="evaluation-eyebrow">Reader response</p>
+              <h3>Evaluation</h3>
+            </div>
+
+            <fieldset className="evaluation-fieldset">
+              <legend className="evaluation-question">
+                How similar are these images?
+              </legend>
+
+              <p className="evaluation-help">
+                Consider overall anatomy, structural detail, and image quality.
+              </p>
+
+              <RatingScale />
+            </fieldset>
           </div>
         </aside>
       </section>

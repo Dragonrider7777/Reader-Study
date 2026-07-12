@@ -138,21 +138,167 @@
   color: #65708a;
 }
 
-.evaluation-placeholder {
+/* EVALUATION CARD */
+
+.evaluation-card {
+  margin-top: 24px;
+  padding: 24px;
+  background: #f8f9fd;
+  border: 1px solid #e5e9f3;
+  border-radius: 20px;
+}
+
+.evaluation-heading {
+  margin-bottom: 22px;
+}
+
+.evaluation-eyebrow {
+  margin: 0 0 5px;
+  color: #4f6df5;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.eval-placeholder {
   margin-top: 22px;
-  padding: 16px;
+  padding: 12px;
   border-radius: 16px;
   background: #f6f8fc;
 }
 
-.evaluation-placeholder h3 {
-  margin: 0 0 8px;
+.evaluation-heading h3 {
+  margin: 0;
+  color: #172033;
+  font-size: 1.45rem;
 }
 
-.evaluation-placeholder p {
+/* Remove the browser's default fieldset styling. */
+.evaluation-fieldset {
+  min-width: 0;
   margin: 0;
-  color: #65708a;
+  padding: 0;
+  border: none;
+}
+
+.evaluation-question {
+  padding: 0;
+  color: #273149;
+  font-size: 1.05rem;
+  font-weight: 700;
+}
+
+.evaluation-help {
+  margin: 8px 0 24px;
+  color: #6b7690;
+  font-size: 0.9rem;
   line-height: 1.5;
+}
+
+/* RATING SCALE */
+
+.rating-scale {
+  width: 100%;
+}
+
+.rating-endpoints {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 10px;
+  color: #6b7690;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.rating-endpoints span:last-child {
+  text-align: right;
+}
+
+/*
+  Make the rating row occupy the available width.
+
+  MUI puts each icon inside a label element, so we use
+  justify-content to distribute all six choices evenly.
+*/
+.similarity-rating {
+  display: flex !important;
+  justify-content: space-between;
+  width: 100%;
+  padding: 4px 0;
+}
+
+/* Give the circles a cleaner, less oversized appearance. */
+.similarity-rating .MuiRating-icon {
+  color: #4f6df5;
+  font-size: 2rem;
+  transition:
+    transform 150ms ease,
+    color 150ms ease;
+}
+
+/* Slight enlargement communicates which option is hovered. */
+.similarity-rating .MuiRating-iconHover {
+  transform: scale(1.08);
+}
+
+/* Make empty circles softer than selected circles. */
+.similarity-rating .MuiRating-iconEmpty {
+  color: #b8c0d2;
+}
+
+/* SELECTED LABEL */
+
+.rating-feedback {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  margin-top: 18px;
+  padding: 12px 14px;
+  background: white;
+  border: 1px solid #e2e7f1;
+  border-radius: 12px;
+  color: #273149;
+}
+
+.rating-feedback-title {
+  color: #75809a;
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+.rating-feedback strong {
+  color: #354fc7;
+  font-size: 0.95rem;
+}
+
+.rating-prompt {
+  color: #75809a;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+/* FOR SMALLER SCREENS */
+@media (max-width: 600px) {
+  .evaluation-card {
+    padding: 18px;
+  }
+
+  .similarity-rating .MuiRating-icon {
+    font-size: 1.65rem;
+  }
+
+  .rating-endpoints {
+    font-size: 0.72rem;
+  }
+
+  .rating-feedback {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
 }
 
 .study-navigation {
