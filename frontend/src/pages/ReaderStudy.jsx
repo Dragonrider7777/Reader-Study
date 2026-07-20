@@ -4,48 +4,123 @@
 
 import { useEffect, useState } from "react";
 import ImageViewer from "../components/ImageViewer";
+import ImageViewerDual from "../components/ImageViewerDual";
 import RatingScale from "../components/RatingScale";
+
 import "../styles/reader-study.css";
 
 function ReaderStudy() {
-  // Determines which images are in the viewer pool
-  const [images, setImages] = useState([]);
-  // Index of the image brain scan being currently displayed
+  // Stores the complete study items returned by FastAPI
+  // Each study item contains:
+  // - an id
+  // - a module type
+  // - a viewer type
+  // - shared question text
+  // - one or mroe image objects
+  const [questions, setQuestions] = useState([]);
+
+  // Tracks which study question is currently being displayed
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const currentImage = images[currentIndex];
+  // Tracks whether the frontend is still waiting for the backend response
+  const [loading, setLoading] = useState(true);
+
+  // Stores an error message if the questions cannot be loaded
+  const [error, setError] = useState("");
+
+  // Retreive the current study question using its position in the array
+  const currentQuestion = questions[currentIndex];
 
   useEffect(() => {
-    async function fetchImages() {
-      const response = await fetch("http://localhost:8000/api/images");
-      const data = await response.json();
-      setImages(data);
+    async function fetchQuestions() {
+      try {
+        // Clear an old error before attempting another request
+        setError("");
+
+        const response = await fetch("http://localhost:8000/api/questions");
+
+        // Read the response body whether the request succeeded or failed
+        const data = await response.json();
+
+        // A fetch request does not automatically throw an error for responses such as 404 or 500
+        // Need to check response.ok because these errors are quite common with debugging
+        if (!response.ok) {
+          throw new Error(
+            data.detail || "The study questions could not be loaded.",
+          );
+        }
+
+        // Protect the frontend in case the backend returns the wrong shape
+        if (!Array.isArray(data)) {
+          throw new Error(
+            "The backend returned an invalid study question format.",
+          );
+        }
+
+        setQuestions(data);
+      } catch (fetchError) {
+        console.error("unable to load study questions:", fetchError);
+
+        setError(
+          fetchError.message ||
+            "An unexpected error occurred while loading the study.",
+        );
+      } finally {
+        setLoading(false);
+      }
     }
-    fetchImages();
+
+    fetchQuestions();
   }, []);
 
-  function nextImage() {
-    if (currentIndex < images.length - 1) {
-      setCurrentIndex(currentIndex + 1);
+  function nextQuestion() {
+    // Prevent the index from moving beyond the final study question
+    if (currentIndex < questions.length - 1) {
+      setCurrentIndex((previousIndex) => previousIndex + 1);
     }
   }
 
-  function previousImage() {
+  function previousQuestion() {
+    // Prevent the index from moving below 0
     if (currentIndex > 0) {
-      setCurrentIndex(currentIndex - 1);
+      setCurrentIndex((previousIndex) => previousIndex - 1);
     }
   }
 
   const progressPercent =
-    images.length > 0 ? ((currentIndex + 1) / images.length) * 100 : 0;
+    questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
 
-  if (images.length === 0) {
+  // Show a loading message only while the request is still running
+  if (loading) {
     return (
       <main className="reader-study-page">
         <p className="loading-text">Loading brain scans...</p>
       </main>
     );
   }
+
+  // Show the actual backend or network error instead of leaving the reader stuck on the loading screen
+  if (error) {
+    return (
+      <main className="reader-study-page">
+        <div className="study-error">
+          <h1>Unable to load the reader study</h1>
+          <p>{error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  // Handle a valid but empty question list.
+  if (!currentQuestion) {
+    return (
+      <main className="reader-study-page">
+        <p className="loading-text">No reader study questions were found.</p>
+      </main>
+    );
+  }
+
+  console.log("Current question:", currentQuestion);
 
   return (
     <main className="reader-study-page">
@@ -59,7 +134,7 @@ function ReaderStudy() {
         <div className="study-status-card">
           <span>Progress</span>
           <strong>
-            {currentIndex + 1} / {images.length}
+            {currentIndex + 1} / {questions.length}
           </strong>
         </div>
       </header>
@@ -74,24 +149,55 @@ function ReaderStudy() {
       </section>
 
       <section className="study-layout">
-        <ImageViewer src={currentImage.url} />
+        <div className="viewer-container">
+          {/* 
+            The backend determines which viewer layout this question uses.
+
+            A single viewer requires one image:
+            currentQuestion.images[0]
+
+            A dual viewer requires two images:
+            currentQuestion.images[0]
+            currentQuestion.images[1]
+          */}
+
+          {currentQuestion.viewer_type === "single" && (
+            <ImageViewer src={currentQuestion.images[0].url} />
+          )}
+
+          {currentQuestion.viewer_type === "double" && (
+            <ImageViewerDual
+              leftSrc={currentQuestion.images[0].url}
+              rightSrc={currentQuestion.images[1].url}
+            />
+          )}
+
+          {/* 
+            This message will protect against a module accidentally returning an unsupported viewer type
+          */}
+          {!["single", "double"].includes(currentQuestion.viewer_type) && (
+            <div className="viewer-error">
+              Unsupported viewer type: {currentQuestion.viewer_type}
+            </div>
+          )}
+        </div>
 
         <aside className="info-panel">
           <h2>Study Information</h2>
 
           <div className="info-row">
-            <span>Current Image</span>
+            <span>Current Question</span>
             <strong>{currentIndex + 1}</strong>
           </div>
 
           <div className="info-row">
-            <span>Total Images</span>
-            <strong>{images.length}</strong>
+            <span>Total Questions</span>
+            <strong>{questions.length}</strong>
           </div>
 
           <div className="info-row">
-            <span>Model</span>
-            <strong>TBD</strong>
+            <span>Module</span>
+            <strong>{currentQuestion.module_type}</strong>
           </div>
 
           <div className="info-row">
@@ -107,7 +213,7 @@ function ReaderStudy() {
 
             <fieldset className="evaluation-fieldset">
               <legend className="evaluation-question">
-                How similar are these images?
+                {currentQuestion.question}
               </legend>
 
               <p className="evaluation-help">
@@ -121,13 +227,13 @@ function ReaderStudy() {
       </section>
 
       <footer className="study-navigation">
-        <button onClick={previousImage} disabled={currentIndex === 0}>
+        <button onClick={previousQuestion} disabled={currentIndex === 0}>
           Previous
         </button>
 
         <button
-          onClick={nextImage}
-          disabled={currentIndex === images.length - 1}
+          onClick={nextQuestion}
+          disabled={currentIndex === questions.length - 1}
         >
           Next
         </button>

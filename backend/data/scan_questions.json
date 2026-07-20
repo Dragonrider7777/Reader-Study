@@ -1,17 +1,17 @@
 [
   {
     "id": 1,
-    "viewer_type": "single",
+    "module_type": 1,
     "images": ["MNI152_T1_1mm_Brain.nii.gz"]
   },
   {
     "id": 2,
-    "viewer_type": "single",
+    "module_type": 1,
     "images": ["MNI152_T1_1mm.nii.gz"]
   },
   {
     "id": 3,
-    "viewer_type": "dual",
+    "module_type": 2,
     "images": ["MNI152_T1_1mm.nii.gz", "MNI152_T1_1mm_Brain.nii.gz"]
   }
 ]
