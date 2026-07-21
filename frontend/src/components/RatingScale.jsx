@@ -27,6 +27,26 @@ function RatingScale() {
   // Otherwise, show the selected label
   const displayedValue = hover !== -1 ? hover : value;
 
+  const handleRating = async (ratingValue) => {
+    try {
+      // Example POST request
+      const response = await fetch("http://localhost:8000/api/responses", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ response: ratingValue }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error: ${response.status}`);
+      }
+
+      console.log("Response sent successfully!");
+    } catch (error) {
+      console.error("Error sending request:", error);
+      console.log("Request failed. Please try again.");
+    }
+  };
+
   return (
     <div className="rating-scale">
       {/* Labels explain what the two ends of the scale mean */}
@@ -49,6 +69,9 @@ function RatingScale() {
         // Save the selected answer
         onChange={(event, newValue) => {
           setValue(newValue);
+          if (newValue !== null) {
+            handleRating(newValue); // Trigger API call here
+          }
         }}
         // Temporarily preview a label when hovering
         onChangeActive={(event, newHover) => {
