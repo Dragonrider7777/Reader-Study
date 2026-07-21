@@ -309,3 +309,17 @@ def get_questions():
         format_study_item(question, position)
         for position, question in enumerate(questions, start=1)
     ]
+
+
+# ------------ GET READER STUDY RESPONSES ENDPOINT ------------
+@app.get("/api/responses")
+def get_responses():
+    """
+    Returns the user responses to the corresponding question
+
+    Each response will contain:
+    - Number chosen on rating scale
+    - Corresponding question id the user responded to
+    """
+
+    responses = []

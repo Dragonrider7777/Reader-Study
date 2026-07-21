@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import ImageViewer from "../components/ImageViewer";
 import ImageViewerDual from "../components/ImageViewerDual";
-import RatingScale from "../components/RatingScale";
+import StudyInfo from "../components/StudyInfo";
 
 import "../styles/reader-study.css";
 
@@ -17,9 +17,9 @@ function ReaderStudy() {
   // - a viewer type
   // - shared question text
   // - one or mroe image objects
-  const [questions, setQuestions] = useState([]);
+  const [studyItems, setStudyItems] = useState([]);
 
-  // Tracks which study question is currently being displayed
+  // Tracks which study studyItem is currently being displayed
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // Tracks whether the frontend is still waiting for the backend response
@@ -28,11 +28,11 @@ function ReaderStudy() {
   // Stores an error message if the questions cannot be loaded
   const [error, setError] = useState("");
 
-  // Retreive the current study question using its position in the array
-  const currentQuestion = questions[currentIndex];
+  // Retreive the current studyItem using its position in the array
+  const currentStudyItem = studyItems[currentIndex];
 
   useEffect(() => {
-    async function fetchQuestions() {
+    async function fetchStudyItems() {
       try {
         // Clear an old error before attempting another request
         setError("");
@@ -46,7 +46,7 @@ function ReaderStudy() {
         // Need to check response.ok because these errors are quite common with debugging
         if (!response.ok) {
           throw new Error(
-            data.detail || "The study questions could not be loaded.",
+            data.detail || "The study items could not be loaded.",
           );
         }
 
@@ -57,9 +57,9 @@ function ReaderStudy() {
           );
         }
 
-        setQuestions(data);
+        setStudyItems(data);
       } catch (fetchError) {
-        console.error("unable to load study questions:", fetchError);
+        console.error("unable to load study item:", fetchError);
 
         setError(
           fetchError.message ||
@@ -70,17 +70,17 @@ function ReaderStudy() {
       }
     }
 
-    fetchQuestions();
+    fetchStudyItems();
   }, []);
 
-  function nextQuestion() {
+  function nextStudyItem() {
     // Prevent the index from moving beyond the final study question
-    if (currentIndex < questions.length - 1) {
+    if (currentIndex < studyItems.length - 1) {
       setCurrentIndex((previousIndex) => previousIndex + 1);
     }
   }
 
-  function previousQuestion() {
+  function previousStudyItem() {
     // Prevent the index from moving below 0
     if (currentIndex > 0) {
       setCurrentIndex((previousIndex) => previousIndex - 1);
@@ -88,7 +88,7 @@ function ReaderStudy() {
   }
 
   const progressPercent =
-    questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
+    studyItems.length > 0 ? ((currentIndex + 1) / studyItems.length) * 100 : 0;
 
   // Show a loading message only while the request is still running
   if (loading) {
@@ -112,15 +112,15 @@ function ReaderStudy() {
   }
 
   // Handle a valid but empty question list.
-  if (!currentQuestion) {
+  if (!currentStudyItem) {
     return (
       <main className="reader-study-page">
-        <p className="loading-text">No reader study questions were found.</p>
+        <p className="loading-text">No reader study items were found.</p>
       </main>
     );
   }
 
-  console.log("Current question:", currentQuestion);
+  console.log("Current Study Item:", currentStudyItem);
 
   return (
     <main className="reader-study-page">
@@ -134,7 +134,7 @@ function ReaderStudy() {
         <div className="study-status-card">
           <span>Progress</span>
           <strong>
-            {currentIndex + 1} / {questions.length}
+            {currentIndex + 1} / {studyItems.length}
           </strong>
         </div>
       </header>
@@ -151,89 +151,48 @@ function ReaderStudy() {
       <section className="study-layout">
         <div className="viewer-container">
           {/* 
-            The backend determines which viewer layout this question uses.
+            The backend determines which viewer layout this study item uses.
 
             A single viewer requires one image:
-            currentQuestion.images[0]
+            currentStudyItem.images[0]
 
             A dual viewer requires two images:
-            currentQuestion.images[0]
-            currentQuestion.images[1]
+            currentStudyItem.images[0]
+            currentStudyItem.images[1]
           */}
 
-          {currentQuestion.viewer_type === "single" && (
-            <ImageViewer src={currentQuestion.images[0].url} />
+          {currentStudyItem.viewer_type === "single" && (
+            <ImageViewer src={currentStudyItem.images[0].url} />
           )}
 
-          {currentQuestion.viewer_type === "double" && (
+          {currentStudyItem.viewer_type === "double" && (
             <ImageViewerDual
-              leftSrc={currentQuestion.images[0].url}
-              rightSrc={currentQuestion.images[1].url}
+              leftSrc={currentStudyItem.images[0].url}
+              rightSrc={currentStudyItem.images[1].url}
             />
           )}
 
           {/* 
             This message will protect against a module accidentally returning an unsupported viewer type
           */}
-          {!["single", "double"].includes(currentQuestion.viewer_type) && (
+          {!["single", "double"].includes(currentStudyItem.viewer_type) && (
             <div className="viewer-error">
-              Unsupported viewer type: {currentQuestion.viewer_type}
+              Unsupported viewer type: {currentStudyItem.viewer_type}
             </div>
           )}
         </div>
 
-        <aside className="info-panel">
-          <h2>Study Information</h2>
-
-          <div className="info-row">
-            <span>Current Question</span>
-            <strong>{currentIndex + 1}</strong>
-          </div>
-
-          <div className="info-row">
-            <span>Total Questions</span>
-            <strong>{questions.length}</strong>
-          </div>
-
-          <div className="info-row">
-            <span>Module</span>
-            <strong>{currentQuestion.module_type}</strong>
-          </div>
-
-          <div className="info-row">
-            <span>Status</span>
-            <strong>In Progress</strong>
-          </div>
-
-          <div className="evaluation-card">
-            <div className="evaluation-heading">
-              <p className="evaluation-eyebrow">Reader response</p>
-              <h3>Evaluation</h3>
-            </div>
-
-            <fieldset className="evaluation-fieldset">
-              <legend className="evaluation-question">
-                {currentQuestion.question}
-              </legend>
-
-              <p className="evaluation-help">
-                Consider overall anatomy, structural detail, and image quality.
-              </p>
-
-              <RatingScale />
-            </fieldset>
-          </div>
-        </aside>
+        <StudyInfo studyItems={studyItems} currentIndex={currentIndex} />
       </section>
 
       <footer className="study-navigation">
-        <button onClick={previousQuestion} disabled={currentIndex === 0}>
+        <button onClick={previousStudyItem} disabled={currentIndex === 0}>
           Previous
         </button>
 
         <button
-          onClick={nextQuestion}
-          disabled={currentIndex === questions.length - 1}
+          onClick={nextStudyItem}
+          disabled={currentIndex === studyItems.length - 1}
         >
           Next
         </button>
