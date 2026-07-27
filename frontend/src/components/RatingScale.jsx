@@ -4,7 +4,7 @@ import Rating from "@mui/material/Rating";
 import CircleIcon from "@mui/icons-material/Circle";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 
-function RatingScale() {
+function RatingScale({ questionId, onRated }) {
   // Each number corresponds to one possible reader response
   const labels = {
     1: "Completely Different",
@@ -33,7 +33,7 @@ function RatingScale() {
       const response = await fetch("http://localhost:8000/api/responses", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ response: ratingValue }),
+        body: JSON.stringify({ rating: ratingValue, question_id: questionId }),
       });
 
       if (!response.ok) {
@@ -41,6 +41,7 @@ function RatingScale() {
       }
 
       console.log("Response sent successfully!");
+      onRated();
     } catch (error) {
       console.error("Error sending request:", error);
       console.log("Request failed. Please try again.");

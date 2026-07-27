@@ -1,6 +1,6 @@
 import RatingScale from "./RatingScale";
 
-function StudyInfo({ studyItems, currentIndex }) {
+function StudyInfo({ studyItems, currentIndex, onRated }) {
   // Retreive the current studyItem using its position in the array
   const currentStudyItem = studyItems[currentIndex];
 
@@ -43,7 +43,7 @@ function StudyInfo({ studyItems, currentIndex }) {
             Consider overall anatomy, structural detail, and image quality.
           </p>
 
-          <RatingScale />
+          <RatingScale questionId={currentStudyItem.id} onRated={onRated} />
         </fieldset>
       </div>
     </aside>

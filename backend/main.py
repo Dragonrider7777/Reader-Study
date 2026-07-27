@@ -12,13 +12,44 @@ from fastapi.staticfiles import StaticFiles
 # It allos the React frontend to communicate with the backend
 from fastapi.middleware.cors import CORSMiddleware
 
+from contextlib import asynccontextmanager
+
+from database import database, mongo_client
+
 # Use to read JSON configuration files.
 import json
 
 # Used to work with folders/files in an operating-system-independent way.
 from pathlib import Path
 
-app = FastAPI()
+# Models
+from models import ResponseCreate
+
+from datetime import datetime, timezone
+from database import responses_collection
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Manage resources that should exist for the entire life of the server.
+
+    Everything before `yield` runs when FastAPI starts.
+    Everything after `yield` runs when FastAPI shuts down.
+    """
+
+    # Send a lightweight command to verify that MongoDB is reachable.
+    database.command("ping")
+    print("Successfully connected to MongoDB.")
+
+    yield
+
+    # Close the MongoDB connection when FastAPI shuts down.
+    await mongo_client.close()
+    print("MongoDB connection closed.")
+
+
+app = FastAPI(lifespan=lifespan)
 
 # ------------ MODULES ------------
 
@@ -58,6 +89,7 @@ app.add_middleware(
     # Only allows requests coming from the React frontend (running on localhost:5173).
     allow_origins=["http://localhost:5173", "http://localhost:5174"],
     # Allows every type of HTTP method (GET, POST, PUT, DELETE, etc.) to be used in requests.
+    allow_credentials=True,
     allow_methods=["*"],
     # Allows every type of HTTP header to be used in requests.
     allow_headers=["*"],
@@ -311,15 +343,31 @@ def get_questions():
     ]
 
 
-# ------------ GET READER STUDY RESPONSES ENDPOINT ------------
+# ------------ READER STUDY RESPONSES ENDPOINT ------------
+
+
 @app.get("/api/responses")
 def get_responses():
-    """
-    Returns the user responses to the corresponding question
+    documents = responses_collection.find()
+    return [
+        {
+            "id": str(doc["_id"]),
+            "question_id": doc["question_id"],
+            "rating": doc["rating"],
+            "submitted_at": doc["submitted_at"],
+        }
+        for doc in documents
+    ]
 
-    Each response will contain:
-    - Number chosen on rating scale
-    - Corresponding question id the user responded to
-    """
 
-    responses = []
+@app.post("/api/responses")
+def create_response(response: ResponseCreate):
+    document = {
+        "question_id": response.question_id,
+        "rating": response.rating,
+        "submitted_at": datetime.now(timezone.utc),
+    }
+
+    result = responses_collection.insert_one(document)
+
+    return {"status": "saved", "id": str(result.inserted_id)}

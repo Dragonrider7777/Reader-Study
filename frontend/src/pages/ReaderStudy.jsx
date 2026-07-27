@@ -80,13 +80,6 @@ function ReaderStudy() {
     }
   }
 
-  function previousStudyItem() {
-    // Prevent the index from moving below 0
-    if (currentIndex > 0) {
-      setCurrentIndex((previousIndex) => previousIndex - 1);
-    }
-  }
-
   const progressPercent =
     studyItems.length > 0 ? ((currentIndex + 1) / studyItems.length) * 100 : 0;
 
@@ -182,21 +175,12 @@ function ReaderStudy() {
           )}
         </div>
 
-        <StudyInfo studyItems={studyItems} currentIndex={currentIndex} />
+        <StudyInfo
+          studyItems={studyItems}
+          currentIndex={currentIndex}
+          onRated={nextStudyItem}
+        />
       </section>
-
-      <footer className="study-navigation">
-        <button onClick={previousStudyItem} disabled={currentIndex === 0}>
-          Previous
-        </button>
-
-        <button
-          onClick={nextStudyItem}
-          disabled={currentIndex === studyItems.length - 1}
-        >
-          Next
-        </button>
-      </footer>
     </main>
   );
 }
