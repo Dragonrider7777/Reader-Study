@@ -1,9 +1,12 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import ReaderStudy from "./pages/ReaderStudy.jsx";
+import { AuthProvider } from "./AuthContext.jsx";
+import App from "./App.jsx";
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ReaderStudy />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </StrictMode>,
 );

@@ -3,7 +3,7 @@
 # IMPORTS:
 # FastAPI allows to create REST APIs quickly.
 # It will be used to build the backend of the application.
-from fastapi import FastAPI, HTTPException
+from fastapi import Depends, FastAPI, HTTPException, Header
 
 # StaticFiles is a utility that allows FastAPI to serve static files (such as .nii.gz images) directly.
 from fastapi.staticfiles import StaticFiles
@@ -14,7 +14,13 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from contextlib import asynccontextmanager
 
-from database import database, mongo_client
+from database import (
+    database,
+    mongo_client,
+    responses_collection,
+    sessions_collection,
+    users_collection,
+)
 
 # Use to read JSON configuration files.
 import json
@@ -23,10 +29,12 @@ import json
 from pathlib import Path
 
 # Models
-from models import ResponseCreate
+from models import ResponseCreate, LoginRequest, UserCreate, SignupResponse
 
 from datetime import datetime, timezone
-from database import responses_collection
+
+import secrets
+from auth import verify_password, hash_password
 
 
 @asynccontextmanager
@@ -106,6 +114,17 @@ app.mount(
     # Internal name used by FastAPI to refer to this static files mount.
     name="images",
 )
+
+
+def get_current_user(authorization: str = Header(...)):
+    token = authorization.replace("Bearer ", "")
+    session = sessions_collection.find_one({"token": token})
+
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+
+    return session["username"]
+
 
 # ------------ QUESTION CONFIGURATION HELPERS ------------
 
@@ -361,13 +380,80 @@ def get_responses():
 
 
 @app.post("/api/responses")
-def create_response(response: ResponseCreate):
+def create_response(
+    response: ResponseCreate, username: str = Depends(get_current_user)
+):
+    questions = load_question_config()
+    valid_ids = {
+        question.get("id") for question in questions if isinstance(question, dict)
+    }
+
+    if response.question_id not in valid_ids:
+        raise HTTPException(
+            status_code=422,
+            detail=f"question_id {response.question_id} does not match any configured study item.",
+        )
+
     document = {
         "question_id": response.question_id,
         "rating": response.rating,
+        "reader_id": username,
         "submitted_at": datetime.now(timezone.utc),
     }
 
     result = responses_collection.insert_one(document)
 
     return {"status": "saved", "id": str(result.inserted_id)}
+
+
+# Login API endpoint
+@app.post("/api/login")
+def login(credentials: LoginRequest):
+    user = users_collection.find_one({"username": credentials.username})
+
+    if not user or not verify_password(credentials.password, user["password_hash"]):
+        raise HTTPException(status_code=401, detail="Invalid username or password")
+
+    session_token = secrets.token_hex(32)
+    sessions_collection.insert_one(
+        {
+            "token": session_token,
+            "username": user["username"],
+            "created_at": datetime.now(timezone.utc),
+        }
+    )
+
+    return {"token": session_token, "username": user["username"]}
+
+
+# Stores sign up data for each new login account
+@app.post("/api/signup", response_model=SignupResponse)
+def signup(new_user: UserCreate):
+    existing_user = users_collection.find_one({"username": new_user.username})
+    if existing_user:
+        raise HTTPException(
+            status_code=409,
+            detail=f"Username '{new_user.username}' is already taken.",
+        )
+
+    password_hash = hash_password(new_user.password)
+
+    users_collection.insert_one(
+        {
+            "username": new_user.username,
+            "password_hash": password_hash,
+            "name": new_user.name,
+            "rank": new_user.rank,
+        }
+    )
+
+    session_token = secrets.token_hex(32)
+    sessions_collection.insert_one(
+        {
+            "token": session_token,
+            "username": new_user.username,
+            "created_at": datetime.now(timezone.utc),
+        }
+    )
+
+    return {"token": session_token, "username": new_user.username}

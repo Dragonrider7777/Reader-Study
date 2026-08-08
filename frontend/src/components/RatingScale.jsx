@@ -4,6 +4,8 @@ import Rating from "@mui/material/Rating";
 import CircleIcon from "@mui/icons-material/Circle";
 import CircleOutlinedIcon from "@mui/icons-material/CircleOutlined";
 
+// Import API URL from config.js
+
 function RatingScale({ questionId, onRated }) {
   // Each number corresponds to one possible reader response
   const labels = {
@@ -73,6 +75,7 @@ function RatingScale({ questionId, onRated }) {
           if (newValue !== null) {
             handleRating(newValue); // Trigger API call here
           }
+          setValue(null);
         }}
         // Temporarily preview a label when hovering
         onChangeActive={(event, newHover) => {

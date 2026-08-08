@@ -6,6 +6,11 @@ import { useEffect, useState } from "react";
 import ImageViewer from "../components/ImageViewer";
 import ImageViewerDual from "../components/ImageViewerDual";
 import StudyInfo from "../components/StudyInfo";
+import CompletionPage from "./CompletionPage";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../AuthContext";
+
+// Import API URL from config.js
 
 import "../styles/reader-study.css";
 
@@ -28,8 +33,20 @@ function ReaderStudy() {
   // Stores an error message if the questions cannot be loaded
   const [error, setError] = useState("");
 
+  // Tracks if reader study is completed or not
+  const [isComplete, setIsComplete] = useState(false);
+
   // Retreive the current studyItem using its position in the array
   const currentStudyItem = studyItems[currentIndex];
+
+  // inside the ReaderStudy component:
+  const { logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login");
+  };
 
   useEffect(() => {
     async function fetchStudyItems() {
@@ -77,6 +94,8 @@ function ReaderStudy() {
     // Prevent the index from moving beyond the final study question
     if (currentIndex < studyItems.length - 1) {
       setCurrentIndex((previousIndex) => previousIndex + 1);
+    } else {
+      setIsComplete(true);
     }
   }
 
@@ -113,6 +132,11 @@ function ReaderStudy() {
     );
   }
 
+  // Switch to completion screen if all questions have been completed
+  if (isComplete) {
+    return <CompletionPage />;
+  }
+
   console.log("Current Study Item:", currentStudyItem);
 
   return (
@@ -125,7 +149,9 @@ function ReaderStudy() {
         </div>
 
         <div className="study-status-card">
-          <span>Progress</span>
+          <span>
+            User: <button onClick={handleLogout}>Log Out</button>
+          </span>
           <strong>
             {currentIndex + 1} / {studyItems.length}
           </strong>
