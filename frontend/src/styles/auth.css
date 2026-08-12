@@ -1,0 +1,124 @@
+@import "./variables.css";
+
+.login-wrapper,
+.signup-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.login-wrapper h1,
+.signup-page .header {
+  margin: 0 0 8px;
+  font-size: 2rem;
+}
+
+.signup-page > p {
+  margin: 0 0 24px;
+  color: var(--color-text-muted);
+}
+
+.login-wrapper form,
+.signup-container {
+  width: 100%;
+  max-width: 380px;
+  padding: 32px;
+  background: var(--color-surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.login-wrapper label p,
+.name-container > p,
+.username-container > p,
+.password-container > p,
+.rank-container > p {
+  margin: 0 0 6px;
+  color: var(--color-text-muted);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.login-wrapper input,
+.signup-container input,
+.signup-container select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  color: var(--color-text);
+  background: var(--color-surface);
+  box-sizing: border-box;
+}
+
+.login-wrapper input:focus,
+.signup-container input:focus,
+.signup-container select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-light);
+}
+
+.login-wrapper button[type="submit"],
+.signup-container button[type="submit"] {
+  margin-top: 8px;
+  padding: 13px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: var(--color-accent);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+.login-wrapper button[type="submit"]:hover,
+.signup-container button[type="submit"]:hover {
+  background: var(--color-accent-dark);
+}
+
+.login-wrapper button[type="submit"]:disabled,
+.signup-container button[type="submit"]:disabled {
+  background: var(--color-inactive);
+  cursor: not-allowed;
+}
+
+.login-wrapper p:last-child {
+  margin-top: 16px;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
+
+.login-wrapper a {
+  color: var(--color-accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-wrapper a:hover {
+  text-decoration: underline;
+}
+
+/* Inline validation / server errors on login and signup */
+.login-wrapper p[style],
+.signup-container p[style] {
+  margin: -6px 0 0;
+  font-size: 0.85rem;
+}
+
+.form-error {
+  margin: -6px 0 0;
+  color: var(--color-error);
+  font-size: 0.85rem;
+  font-weight: 600;
+}

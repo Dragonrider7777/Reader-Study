@@ -2,6 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../AuthContext";
 
+import "../styles/auth.css";
+
 export default function SignUpPage() {
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -77,7 +79,7 @@ export default function SignUpPage() {
             required
           />
         </div>
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <p className="form-error">{error}</p>}
         <button type="submit">Sign Up</button>
       </form>
     </main>

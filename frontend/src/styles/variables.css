@@ -1,0 +1,36 @@
+:root {
+  /* Backgrounds */
+  --color-bg: #f4f7fb; /* page background */
+  --color-surface: #ffffff; /* cards, panels, inputs */
+  --color-surface-muted: #f8f9fd; /* nested surfaces inside a card */
+  --color-viewer-bg: #050812; /* dark canvas backdrop — deliberately separate from the light palette */
+
+  /* Text — two tiers only, far enough apart to actually read as distinct */
+  --color-text: #172033; /* headings, primary values, emphasis */
+  --color-text-muted: #65708a; /* labels, descriptions, supporting copy */
+
+  /* Accent (brand blue) */
+  --color-accent: #4f6df5; /* primary actions, active/selected state */
+  --color-accent-dark: #354fc7; /* hover/pressed, high-emphasis accent text */
+  --color-accent-light: #eef2ff; /* accent backgrounds, badges */
+
+  /* Borders — two tiers: quiet dividers vs. functional/interactive borders */
+  --color-border: #e5e9f3;
+  --color-border-strong: #dce3f2;
+
+  /* Inactive state — shared by disabled buttons AND empty rating icons.
+     Both mean the same thing: "not currently selectable/selected." */
+  --color-inactive: #c3cbdb;
+
+  /* Feedback */
+  --color-error: #d64545;
+
+  /* Shadows */
+  --shadow-card: 0 12px 30px rgba(20, 35, 70, 0.08);
+
+  /* Radii */
+  --radius-lg: 22px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --radius-pill: 999px;
+}

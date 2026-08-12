@@ -40,7 +40,7 @@ function ReaderStudy() {
   const currentStudyItem = studyItems[currentIndex];
 
   // inside the ReaderStudy component:
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -148,10 +148,18 @@ function ReaderStudy() {
           <p>Review randomized NIfTI brain images.</p>
         </div>
 
+        <div className="header-right">
+          <div className="user-badge">
+            <span>Logged in as</span>
+            <strong>{user}</strong>
+            <button className="logout-button" onClick={handleLogout}>
+              Log Out
+            </button>
+          </div>
+        </div>
+
         <div className="study-status-card">
-          <span>
-            User: <button onClick={handleLogout}>Log Out</button>
-          </span>
+          <span>Progress</span>
           <strong>
             {currentIndex + 1} / {studyItems.length}
           </strong>

@@ -402,7 +402,6 @@ def create_response(
     }
 
     result = responses_collection.insert_one(document)
-
     return {"status": "saved", "id": str(result.inserted_id)}
 
 
